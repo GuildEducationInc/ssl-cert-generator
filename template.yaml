@@ -49,7 +49,7 @@ Resources:
       ContainerDefinitions:
         -
           Command:
-            - "--issue --dns dns_aws -d smtp-relay-testing.dev-guild-cloud.com -d smtp-relay-testing.dev-guild-cloud.com"
+            - "--issue, --dns dns_aws, -d smtp-relay-testing.dev-guild-cloud.com, -d smtp-relay-testing.dev-guild-cloud.com"
           Cpu: 512
           Memory: 1024
           Image: 477873552632.dkr.ecr.us-west-2.amazonaws.com/guild/smtp-test-dev

@@ -29,6 +29,8 @@ RUN cd /install_acme.sh && ([ -f /install_acme.sh/acme.sh ] && /install_acme.sh/
 
 RUN ln -s  /root/.acme.sh/acme.sh  /usr/local/bin/acme.sh && crontab -l | grep acme.sh | sed 's#> /dev/null##' | crontab -
 
+# This loop creates executable aliases that link to the acme.sh script, which is what allows passing commands into the container as if they were cli options for the script
+# ex: --issue is the command parameter passed to the script which tells it to issue a certificate. Docker parses that --issue on the cli as a command, which is created in this loop.
 RUN for verb in help \
   version \
   install \
