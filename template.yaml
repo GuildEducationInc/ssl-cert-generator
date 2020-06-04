@@ -48,8 +48,6 @@ Resources:
       ExecutionRoleArn: !Ref SMTPRole
       ContainerDefinitions:
         -
-          Command:
-            - "--issue, --dns dns_aws, -d smtp-relay-testing.dev-guild-cloud.com, -d smtp-relay-testing.dev-guild-cloud.com"
           Cpu: 512
           Memory: 1024
           Image: 477873552632.dkr.ecr.us-west-2.amazonaws.com/guild/smtp-test-dev
@@ -70,7 +68,8 @@ Resources:
     Type: AWS::Events::Rule
     Properties:
       Description: schedule for SSL cert renewal
-      ScheduleExpression: "cron(* * * * ? *)"
+      # Run at 8:00 am (UTC) every 1st day of the month
+      ScheduleExpression: "cron(0 8 1 * ? *)"
       State:  "ENABLED"
       Targets:
       -
