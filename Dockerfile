@@ -1,5 +1,7 @@
 FROM alpine:3.10
 
+WORKDIR /
+
 RUN apk update -f \
   && apk --no-cache add -f \
   openssl \
@@ -9,9 +11,13 @@ RUN apk update -f \
   curl \
   socat \
   tzdata \
+  jq \
   oath-toolkit-oathtool \
   tar \
+  py3-pip \
   && rm -rf /var/cache/apk/*
+
+RUN pip3 install awscli --upgrade
 
 ENV LE_CONFIG_HOME /acme.sh
 
@@ -21,9 +27,10 @@ ENV AUTO_UPGRADE 1
 ADD ./ /install_acme.sh/
 RUN cd /install_acme.sh && ([ -f /install_acme.sh/acme.sh ] && /install_acme.sh/acme.sh --install || curl https://get.acme.sh | sh) && rm -rf /install_acme.sh/
 
-
 RUN ln -s  /root/.acme.sh/acme.sh  /usr/local/bin/acme.sh && crontab -l | grep acme.sh | sed 's#> /dev/null##' | crontab -
 
+# This loop creates executable aliases that link to the acme.sh script, which is what allows passing commands into the container as if they were cli options for the script
+# ex: --issue is the command parameter passed to the script which tells it to issue a certificate. Docker parses that --issue on the cli as a command, which is created in this loop.
 RUN for verb in help \
   version \
   install \
@@ -56,15 +63,13 @@ RUN for verb in help \
     printf -- "%b" "#!/usr/bin/env sh\n/root/.acme.sh/acme.sh --${verb} --config-home /acme.sh \"\$@\"" >/usr/local/bin/--${verb} && chmod +x /usr/local/bin/--${verb} \
   ; done
 
-RUN printf "%b" '#!'"/usr/bin/env sh\n \
-if [ \"\$1\" = \"daemon\" ];  then \n \
- trap \"echo stop && killall crond && exit 0\" SIGTERM SIGINT \n \
- crond && while true; do sleep 1; done;\n \
-else \n \
- exec -- \"\$@\"\n \
-fi" >/entry.sh && chmod +x /entry.sh
+COPY ./entry.sh .
+RUN chmod +x /entry.sh
+
+COPY ./smtp-relay-automation.sh .
+RUN chmod +x /smtp-relay-automation.sh
 
 VOLUME /acme.sh
 
-ENTRYPOINT ["/entry.sh"]
+ENTRYPOINT ["/smtp-relay-automation.sh"]
 CMD ["--help"]
