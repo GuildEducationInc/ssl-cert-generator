@@ -23,10 +23,6 @@ ENV LE_CONFIG_HOME /acme.sh
 
 ENV AUTO_UPGRADE 1
 
-ENV AWS_ACCESS_KEY_ID <key>
-ENV AWS_SECRET_ACCESS_KEY <access_key>
-ENV AWS_SESSION_TOKEN <session_token>
-
 #Install
 ADD ./ /install_acme.sh/
 RUN cd /install_acme.sh && ([ -f /install_acme.sh/acme.sh ] && /install_acme.sh/acme.sh --install || curl https://get.acme.sh | sh) && rm -rf /install_acme.sh/
