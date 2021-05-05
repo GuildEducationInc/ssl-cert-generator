@@ -21,4 +21,3 @@
 #   --name "smtp-relay-key-${ENVIRONMENT}" \
 #   --type "String" \
 #   --value "$(cat acme.sh/smtp-relay.${DOMAIN}/smtp-relay.${DOMAIN}.key)" \
-#   --overwrite
